@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\CommentController;
 use App\Http\Controllers\API\ProtestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -51,3 +52,11 @@ Route::post('volunteer/update', [UserController::class, 'update_volunteer']);
 Route::post('volunteer/usher', [ProtestController::class, 'volunteerUsher']);
 Route::get('volunteerRequests', [ProtestController::class, 'get_volunteer_requests']);
 Route::put('request/update', [ProtestController::class, 'updateRequest']);
+
+Route::post('comment', [CommentController::class, 'postComments']);
+Route::post('photo', [ProtestController::class, 'uploadPhoto']);
+Route::post('editComment', [CommentController::class, 'editComment']);
+Route::get('comment/{protestId}', [CommentController::class, 'getComments']);
+Route::delete('comment/{commentId}', [CommentController::class, 'deleteComment']);
+Route::get('photos', [ProtestController::class, 'getPhotos']);
+Route::delete('photo/{photoId}', [ProtestController::class, 'deletePhoto']);

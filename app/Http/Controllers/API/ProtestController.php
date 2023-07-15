@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\comments;
+use App\Models\photos;
 use App\Models\protests;
 use App\Models\users;
 use App\Models\volunteer_book;
@@ -319,9 +321,10 @@ class ProtestController extends Controller
             'message' => 'Your volunteer request is being processed...'
         ], 200);
     }
+
     public function get_specific_protest($protest_id)
     {
-        $protest = protests::where('protest_id', '=', $protest_id)->first();
+        $protest = protests::find($protest_id);
         if (!$protest) {
             //else an error response is returned
             return response()->json([
@@ -331,10 +334,26 @@ class ProtestController extends Controller
             ], 400);
         }
 
+        $protest_author = users::find($protest->creator_token);
+        $comments = comments::where('protest_id', $protest_id)->get();
+        $photos = photos::where('protest_id', $protest_id)->get();
+        // $photoUrls = $photos->pluck('image_url')->all();
+
+        $return_data = [
+            'title' => $protest->title,
+            'description' => $protest->description,
+            'event_date' => $protest->event_date,
+            'author' => $protest_author->username,
+            'author_token' => $protest_author->id,
+            'venue' => $protest->venue,
+            'comments' => $comments,
+            'photos' => $photos
+        ];
+
         return  response()->json([
             'status' => 200,
             'success' => true,
-            'data' => $protest
+            'protest' => $return_data
         ], 200);
     }
     public function emergency(Request $protestData)
@@ -400,5 +419,53 @@ class ProtestController extends Controller
             'data' => $request->is_validated
 
         ], 200);
+    }
+
+    public function uploadPhoto(Request $photoData)
+    {
+        $newPhoto = photos::create([
+            'protest_id' => $photoData->protest_id,
+            'image_url' => $photoData->img_url
+        ]);
+
+        if (!$newPhoto) {
+            return response()->json([
+                'status' => 400,
+                'success' => false,
+                'message' => "Request data could not be updated!"
+            ], 400);
+        }
+
+        return response()->json([
+            'status' => 200,
+            'success' => true,
+            'message' => "Photo uploaded successfully"
+        ], 200);
+    }
+
+
+    public function getPhotos()
+    {
+        $photos = photos::all();
+        return response()->json($photos);
+    }
+
+    public function deletePhoto($photoId)
+    {
+        $deleted = photos::find($photoId)->delete();
+        if ($deleted) {
+            return response()->json(
+                [
+                    'status' => 200,
+                    'message' => 'Photo deleted successfully'
+                ],
+                200
+            );
+        }
+        return response()->json([
+            'status' => 400,
+            'success' => false,
+            'message' => "Failed to delete photo!"
+        ], 400);
     }
 }
