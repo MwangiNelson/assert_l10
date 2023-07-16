@@ -468,4 +468,48 @@ class ProtestController extends Controller
             'message' => "Failed to delete photo!"
         ], 400);
     }
+
+    public function checkAssignment(Request $data)
+    {
+        $volunteer_request = volunteer_book::where('volunteer_id', $data->volunteer_id)->where('protest_id', $data->protest_id)->first();
+        if ($volunteer_request) {
+            return response()->json(
+                [
+                    'status' => 200,
+                    'data' => $volunteer_request->is_validated
+                ],
+                200
+            );
+        }
+
+        return response()->json(
+            [
+                'status' => 200,
+                'data' => false
+            ],
+            200
+        );
+    }
+
+    public function cancelVolunteer(Request $data)
+    {
+        $volunteer_request = volunteer_book::where('volunteer_id', $data->volunteer_id)->where('protest_id', $data->protest_id)->delete();
+        if ($volunteer_request) {
+            return response()->json(
+                [
+                    'status' => 200,
+                    'data' => true
+                ],
+                200
+            );
+        }
+        return response()->json(
+            [
+                'status' => 400,
+                'message' => 'PLease request a volunteer first'
+            ],
+            400
+        );
+
+    }
 }

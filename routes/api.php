@@ -60,3 +60,7 @@ Route::get('comment/{protestId}', [CommentController::class, 'getComments']);
 Route::delete('comment/{commentId}', [CommentController::class, 'deleteComment']);
 Route::get('photos', [ProtestController::class, 'getPhotos']);
 Route::delete('photo/{photoId}', [ProtestController::class, 'deletePhoto']);
+
+Route::post('checkRequest', [ProtestController::class, 'checkAssignment']);
+Route::post('cancelVolunteer', [ProtestController::class, 'cancelVolunteer']);
+
