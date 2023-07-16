@@ -64,3 +64,8 @@ Route::delete('photo/{photoId}', [ProtestController::class, 'deletePhoto']);
 Route::post('checkRequest', [ProtestController::class, 'checkAssignment']);
 Route::post('cancelVolunteer', [ProtestController::class, 'cancelVolunteer']);
 
+Route::post('alert', [ProtestController::class, 'alertAdmin']);
+Route::get('alerts', [ProtestController::class, 'getAlerts']);
+
+
+

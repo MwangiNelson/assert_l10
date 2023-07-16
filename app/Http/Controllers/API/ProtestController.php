@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\alerts;
 use App\Models\comments;
 use App\Models\photos;
 use App\Models\protests;
@@ -510,6 +511,55 @@ class ProtestController extends Controller
             ],
             400
         );
+    }
 
+    public function alertAdmin(Request $request)
+    {
+        $alert = alerts::firstOrCreate([
+            'volunteer_id' => $request->volunteer_id,
+            'protest_id' => $request->protest_id
+        ]);
+
+        if ($alert->wasRecentlyCreated) {
+            return response()->json(
+                [
+                    'status' => 200,
+                    'message' => 'Alert has been posted successfully'
+                ],
+                200
+            );
+        }
+
+        return response()->json(
+            [
+                'status' => 200,
+                'message' => 'Alert has already been posted'
+            ],
+            200
+        );
+    }
+
+    public function getAlerts()
+    {
+        $alerts = alerts::all();
+
+        $formattedAlerts = $alerts->map(function ($alert) {
+            $volunteer = volunteers::find($alert->volunteer_id);
+            $protest = protests::find($alert->protest_id);
+
+            return [
+                'volunteer_id' => $alert->volunteer_id,
+                'volunteer_username' => $volunteer ? $volunteer->username : null,
+                'protest_id' => $alert->protest_id,
+                'protest_title' => $protest ? $protest->title : null,
+                'venue' => $protest ? $protest->venue : null,
+                'timestamp' => $alert->created_at
+            ];
+        });
+
+        return response()->json([
+            'status' => 200,
+            'alerts' => $formattedAlerts,
+        ], 200);
     }
 }
